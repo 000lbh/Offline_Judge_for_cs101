@@ -17,16 +17,26 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
     Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    OutputArea: TMemo;
     OpenDialog1: TOpenDialog;
     OpenDialog2: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
     fileSelected,dirSelected:boolean;
@@ -69,6 +79,12 @@ begin
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
+const
+  BUF_SIZE = 2048;
+var
+  t:string;
+  StringList:TStringList;
+  //StringStream:TStringStream;
 begin
   Button3.Enabled:=false;
   processA:=TProcess.Create(nil);
@@ -76,16 +92,42 @@ begin
   processA.Parameters.Add('OfflineJudge for cs101\OfflineJudge_for_cs101.py');
   processA.Parameters.Add(Edit1.Text);
   processA.Parameters.Add(Edit2.Text);
-  processA.Options:=processA.Options+[poWaitOnExit,poNewConsole];
-  processA.ShowWindow:=swoShow;
+  processA.PipeBufferSize:=65536;
+  processA.Options:=[poUsePipes,poNoConsole,poWaitOnExit,poStderrToOutPut];
+  processA.ShowWindow:=swoNone;
   processA.Execute;
+  StringList:=TStringList.Create;
+  StringList.LoadFromStream(processA.Output);
+  OutputArea.Lines.AddStrings(StringList);
+  writestr(t,'Judge''s exit code is ',processA.ExitCode);
+  OutputArea.Lines.Append(t);
   processA.Free;
+  FreeAndNil(StringList);
   Button3.Enabled:=true;
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
   if OpenDialog2.Execute then Edit3.Text:=OpenDialog2.FileName;
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+  //ShowMessage(IntToStr(MessageDlg('Confirm','Are you sure to clear the board?',mtConfirmation,mbYesNo,0,mbNo)));
+  if MessageDlg('Confirm','Are you sure to clear the board?',mtConfirmation,mbYesNo,0,mbNo)=6 then begin
+    OutputArea.Clear;
+  end;
+end;
+
+procedure TForm1.Button6Click(Sender: TObject);
+var
+  t:string;
+begin
+  if SaveDialog1.Execute then begin
+    t:=SaveDialog1.FileName;
+    OutputArea.Lines.SaveToFile(t,TEncoding.UTF8);
+    ShowMessage('Succeed!');
+  end;
 end;
 
 end.

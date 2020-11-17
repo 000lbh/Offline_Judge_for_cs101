@@ -28,7 +28,7 @@ for k in ftest:
         except subprocess.TimeoutExpired:
             p.kill()
             print('Time Limit Exceeded at',i+','+j,'!')
-            break
+            exit(4)
         f=open(j,mode='r')
         out0=('\n'.join(f.readlines())).splitlines()
         f.close()
@@ -44,7 +44,7 @@ for k in ftest:
             print('\n'.join(out))
             print('Exitcode:%d'%(p.returncode))
             p.kill()
-            break
+            exit(3)
         p.kill()
         errStatus=False
         if len(out)!=len(out0):
@@ -58,9 +58,9 @@ for k in ftest:
                     break
         if errStatus:
             print(errMessage)
-            break
+            exit(2)
         else:
             print('   test',i,j,'OK!')
     else:
         print('Accept!')
-input('Press Enter to continue. . .')
+#input('Press Enter to continue. . .')

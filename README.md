@@ -1,6 +1,18 @@
 # Offline_Judge_for_cs101
  An offline judge system for python
 
+非常欢迎Pull requests，欢迎Issue。
+
+##### 2020.11.17 ver0.2 change log:
+
+Command prompt window no longer shows.
+
+You can save output log now.
+
+Re-designed GUI.
+
+macOs compability.
+
 ##### 使用方法：
 
 ###### GUI：
@@ -12,8 +24,6 @@
 第三栏选择测试数据所在目录（in和out后缀名的文件，只扫描一层目录，也就是说文件夹里面的文件夹的数据不会被考虑）
 
 之后点击Offline Judge按钮即可
-
-会弹出来一个黑色窗口显示结果，按回车退出窗口
 
 ###### 命令行：
 

@@ -126,9 +126,11 @@ dmypy.json
 
 # Pascal
 *.res
-*.lpi
 *.exe
 *.ico
+*.dbg
+backup/
+lib/
 
 #vs
-OfflineJudge for cs101\.vs
+OfflineJudge for cs101/.vs/
