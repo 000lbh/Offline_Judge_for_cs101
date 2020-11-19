@@ -3,6 +3,14 @@
 
 非常欢迎Pull requests，欢迎Issue。
 
+##### 2020.11.19 ver0.3 change log:
+
+Add a simplified output checkbox.
+
+Fix some bugs.
+
+Add about dialog.
+
 ##### 2020.11.17 ver0.2 change log:
 
 Command prompt window no longer shows.

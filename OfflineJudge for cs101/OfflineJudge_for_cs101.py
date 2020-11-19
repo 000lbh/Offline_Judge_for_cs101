@@ -1,4 +1,3 @@
-
 import subprocess
 import os
 import sys
@@ -16,7 +15,7 @@ finout=finout+'\\' if finout[-1]!='\\' else finout
 fin=glob.glob(finout+'*.in')
 fout=glob.glob(finout+'*.out')
 for k in ftest:
-    print('Judging for',k)
+    #print('Judging for',k)
     for i,j in zip(fin,fout):
         f=open(i,mode='r')
         inp=''.join(f.readlines())
@@ -63,4 +62,4 @@ for k in ftest:
             print('   test',i,j,'OK!')
     else:
         print('Accept!')
-#input('Press Enter to continue. . .')
+        exit(0)

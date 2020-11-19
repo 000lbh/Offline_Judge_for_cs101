@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Menus,
-  Process;
+  Process, unit2;
 
 type
 
@@ -19,6 +19,8 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
+    Button7: TButton;
+    CheckBox1: TCheckBox;
     Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
@@ -37,6 +39,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
     fileSelected,dirSelected:boolean;
@@ -84,6 +87,7 @@ const
 var
   t:string;
   StringList:TStringList;
+  ecode:integer;
   //StringStream:TStringStream;
 begin
   Button3.Enabled:=false;
@@ -95,11 +99,22 @@ begin
   processA.PipeBufferSize:=65536;
   processA.Options:=[poUsePipes,poNoConsole,poWaitOnExit,poStderrToOutPut];
   processA.ShowWindow:=swoNone;
+  OutputArea.Lines.Add('Judging for '+Edit1.Text);
   processA.Execute;
   StringList:=TStringList.Create;
   StringList.LoadFromStream(processA.Output);
-  OutputArea.Lines.AddStrings(StringList);
-  writestr(t,'Judge''s exit code is ',processA.ExitCode);
+  if not CheckBox1.Checked then
+    OutputArea.Lines.AddStrings(StringList);
+  ecode:=processA.ExitCode;
+  writestr(t,'Judge''s exit code is ',ecode);
+  OutputArea.Lines.Append(t);
+  case ecode of
+    0:t:='Verdict:Accept';
+    2:t:='Verdict:Wrong Answer';
+    3:t:='Verdict:Runtime Error';
+    4:t:='Verdict:Time Limit Exceeded';
+    else t:='Verdict:Unexpected Error';
+  end;
   OutputArea.Lines.Append(t);
   processA.Free;
   FreeAndNil(StringList);
@@ -128,6 +143,11 @@ begin
     OutputArea.Lines.SaveToFile(t,TEncoding.UTF8);
     ShowMessage('Succeed!');
   end;
+end;
+
+procedure TForm1.Button7Click(Sender: TObject);
+begin
+  Form2.ShowModal;
 end;
 
 end.
