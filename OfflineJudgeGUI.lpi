@@ -29,6 +29,7 @@
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
+            <Style Value="1"/>
             <SyntaxOptions>
               <IncludeAssertionCode Value="True"/>
             </SyntaxOptions>
@@ -56,6 +57,10 @@
               </Win32>
             </Options>
           </Linking>
+          <Other>
+            <CustomOptions Value="-a
+-al"/>
+          </Other>
         </CompilerOptions>
       </Item2>
     </BuildModes>
@@ -78,7 +83,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="OfflineJudgeGUI.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -95,9 +100,18 @@
         <Filename Value="unit2.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form2"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit2"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="udropdialog.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="DropDialog"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UDropDialog"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

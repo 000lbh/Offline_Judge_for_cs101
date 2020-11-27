@@ -3,6 +3,16 @@
 
 非常欢迎Pull requests，欢迎Issue。
 
+##### 2020.11.27 ver0.4 change log:
+
+Add arbitrary executables support,you can judge
+
+You can extend this by adding scripts and modify the Settings.xml
+
+Multithread support,the main form no loger stop when judging
+
+Add Drag&Drop support
+
 ##### 2020.11.19 ver0.3 change log:
 
 Add a simplified output checkbox.
@@ -36,3 +46,17 @@ macOs compability.
 ###### 命令行：
 
 写死了，第一个参数是Python源代码，第二个参数是测试数据所在目录，不可调换顺序。
+
+##### 注意事项：
+
+无论你在哪个操作系统上使用，无论你使用哪种语言，必须安装python解释器并设置好路径，否则程序不能正常运行。将来版本路径设置会被添加到Settings.xml中。脚本能够在Windows平台上正确运行，其他平台请自行修改脚本（主要是斜杠问题和解释器路径问题）。
+
+##### 测试过的平台：
+
+Windows 10 2004专业版，64位，支持
+
+Windows 7旗舰版，64位，虚拟机，支持
+
+ReactOS，32位，虚拟机，支持
+
+WindowsXP专业版，32位，虚拟机，不支持

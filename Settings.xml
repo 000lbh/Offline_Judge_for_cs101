@@ -1,0 +1,5 @@
+<settings n="3">
+    <script id="1" src="scripts/python.py" type="py">Python</script>
+	<script id="2" src="scripts/anyexe.py" type="py">Any Executables</script>
+	<script id="3" src="scripts/fpc.py" type="py">Free Pascal</script>
+</settings>

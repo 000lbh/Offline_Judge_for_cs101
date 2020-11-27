@@ -6,14 +6,19 @@ import glob
 if len(sys.argv)>1:
     testfile=os.path.abspath(sys.argv[1])
     finout=os.path.abspath(sys.argv[2])
+    timelimit=float(sys.argv[3])
     os.chdir(finout)
 else:
     ftest=os.path.abspath(input('Input test file:'))
     fin=os.path.abspath(input('Input test data directory:'))
+    timelimit=float(input('Time limit:'))
 ftest=[testfile]
 finout=finout+'\\' if finout[-1]!='\\' else finout
 fin=glob.glob(finout+'*.in')
 fout=glob.glob(finout+'*.out')
+if fin==[] or fout==[]:
+    print('No test data!')
+    exit(1)
 for k in ftest:
     #print('Judging for',k)
     for i,j in zip(fin,fout):
@@ -21,13 +26,13 @@ for k in ftest:
         inp=''.join(f.readlines())
         f.close()
         try:
-            p=subprocess.Popen(['py',k],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            output,err=p.communicate(bytes(inp,encoding='utf-8'),timeout=1)
+            p=subprocess.Popen([k],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output,err=p.communicate(bytes(inp,encoding='utf-8'),timeout=timelimit)
             out=output.decode('utf-8').splitlines()
         except subprocess.TimeoutExpired:
             p.kill()
             print('Time Limit Exceeded at',i+','+j,'!')
-            exit(4)
+            exit(4004)
         f=open(j,mode='r')
         out0=('\n'.join(f.readlines())).splitlines()
         f.close()
@@ -43,7 +48,7 @@ for k in ftest:
             print('\n'.join(out))
             print('Exitcode:%d'%(p.returncode))
             p.kill()
-            exit(3)
+            exit(4003)
         p.kill()
         errStatus=False
         if len(out)!=len(out0):
@@ -57,7 +62,7 @@ for k in ftest:
                     break
         if errStatus:
             print(errMessage)
-            exit(2)
+            exit(4002)
         else:
             print('   test',i,j,'OK!')
     else:
