@@ -7,9 +7,23 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Menus,
   ActnList, DBCtrls, Process, unit2, UDropDialog, XMLRead, XMLUtils,XMLReader,
-  XMLTextReader, DOM;
+  XMLTextReader, DOM, {$IFDEF Windows}Windows{$ELSE}Unix{$ENDIF};
 
 type
+
+  { TJudgeThread }
+
+  TJudgeThread = class(TThread)
+  private
+    OutputStr:string;
+    procedure EnableGUI;
+    procedure DisableGUI;
+    procedure WriteOutput;
+  protected
+    procedure Execute;override;
+  public
+    constructor Create(CreateSuspended:boolean);
+  end;
 
   { EXMLFormatError }
 
@@ -62,7 +76,6 @@ type
     procedure FormCreate(Sender: TObject);
   private
     fileSelected,dirSelected:boolean;
-    processA:TProcess;
     Settings:TXMLDocument;
     Script:TDOMNode;
     ScriptList:TDOMNodeList;
@@ -74,12 +87,96 @@ type
 
 var
   Form1: TForm1;
-
-function CreateJudgeThread(p:pointer):ptrint;
+  processA: TProcess;
+  JudgeThread: TJudgeThread;
 
 implementation
 
 {$R *.lfm}
+{$IFDEF Windows}{$R Settings.rc}{$ENDIF}
+
+{ TJudgeThread }
+
+procedure TJudgeThread.EnableGUI;
+begin
+  Form1.Enabled:=true;
+end;
+
+procedure TJudgeThread.DisableGUI;
+begin
+  Form1.Enabled:=false;
+end;
+
+procedure TJudgeThread.WriteOutput;
+begin
+  Form1.OutputArea.Lines.Add(OutputStr);
+end;
+
+procedure TJudgeThread.Execute;
+var
+  StringList:TStringList;
+  ecode:integer;
+begin
+  with Form1 do begin
+    Synchronize(@DisableGUI);
+    try
+      processA:=TProcess.Create(nil);
+      processA.Executable:=Edit3.Text;
+      processA.Parameters.Add(ScriptSrcs[ComboBox1.ItemIndex]);
+      processA.Parameters.Add(Edit1.Text);
+      processA.Parameters.Add(Edit2.Text);
+      processA.Parameters.Add(Edit4.Text);
+      processA.PipeBufferSize:=65536;
+      processA.Options:=[poUsePipes,poNoConsole,poWaitOnExit,poStderrToOutPut];
+      processA.ShowWindow:=swoNone;
+      OutputStr:='Judging for '+Edit1.Text;
+      Synchronize(@WriteOutput);
+      processA.Execute;
+      try
+        StringList:=TStringList.Create;
+        StringList.LoadFromStream(processA.Output);
+        if CheckBox1.Checked then
+          OutputArea.Lines.AddStrings(StringList);
+        ecode:=processA.ExitCode;
+        writestr(OutputStr,'Judge''s exit code is ',ecode);
+        Synchronize(@WriteOutput);
+        case ecode of
+          0:OutputStr:='Verdict:Accept';
+          4002:OutputStr:='Verdict:Wrong Answer';
+          4003:OutputStr:='Verdict:Runtime Error';
+          4004:OutputStr:='Verdict:Time Limit Exceeded';
+          4005:OutputStr:='Verdict:Memory Limit Exceeded';
+          4001:OutputStr:='Verdict:Compile Error';
+          else OutputStr:='Verdict:Unexpected Error';
+        end;
+        Synchronize(@WriteOutput);
+      finally
+        FreeAndNil(StringList);
+      end;
+    except
+      on E:EProcess do begin
+        ShowMessage('Cannot run.Check if your python interpreter exists!Maybe you should choose it manually.');
+        OutputStr:='Cannot start judging process!';
+        Synchronize(@WriteOutput);
+      end;
+      on E:EStringListError do begin
+        ShowMessage('Choose a script,instead of input one');
+        OutputStr:='Illegal script!';
+        Synchronize(@WriteOutput);
+      end
+      else begin end;
+    end;
+    processA.Free;
+    Synchronize(@EnableGUI);
+  end;
+  exit;
+end;
+
+constructor TJudgeThread.Create(CreateSuspended: boolean);
+begin
+  FreeOnTerminate:=true;
+  inherited Create(CreateSuspended);
+end;
 
 { EXMLFormatError }
 
@@ -93,10 +190,18 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 var
   i:integer;
+  SettingFile:TResourceStream;
 begin
+  Edit3.Text:={$IFDEF Windows}'py'{$ELSE}{$IFDEf Unix}'/usr/bin/python3'{$ENDIF}{$ENDIF};
   fileSelected:=false;
   dirSelected:=false;
   ScriptSrcs:=TStringList.Create;
+  if not FileExists('Settings.xml') then begin{$IFDEF Windows}
+    OutputArea.Lines.Add('Automatically created Settings.xml at '+ExpandFileName('Settings.xml'));
+    SettingFile:=TResourceStream.Create(HInstance,'SETTINGS',RT_RCDATA);
+    SettingFile.SaveToFile('Settings.xml');
+    SettingFile.Free;{$ENDIF}
+  end;
   try
     ReadXMLFile(Settings,'Settings.xml');
     if lowercase(Settings.DocumentElement.NodeName)<>'settings' then
@@ -114,7 +219,7 @@ begin
     on E:EXMLReadError do begin
       ShowMessage('Invalid XML format!');
       Application.Terminate;
-      end;
+    end;
   end;
 end;
 
@@ -122,64 +227,6 @@ function TForm1.getDropFileName: string;
 begin
   DropDialog.ShowModal;
   exit(DropDialog.rlt);
-end;
-
-function CreateJudgeThread(p:pointer): ptrint;
-var
-  t:string;
-  StringList:TStringList;
-  ecode:integer;
-  //StringStream:TStringStream;
-begin
-  with Form1 do begin
-    try
-      processA:=TProcess.Create(nil);
-      processA.Executable:=Edit3.Text;
-      processA.Parameters.Add(ScriptSrcs[ComboBox1.ItemIndex]);
-      processA.Parameters.Add(Edit1.Text);
-      processA.Parameters.Add(Edit2.Text);
-      processA.Parameters.Add(Edit4.Text);
-      processA.PipeBufferSize:=65536;
-      processA.Options:=[poUsePipes,poNoConsole,poWaitOnExit,poStderrToOutPut];
-      processA.ShowWindow:=swoNone;
-      OutputArea.Lines.Add('Judging for '+Edit1.Text);
-      processA.Execute;
-      try
-        StringList:=TStringList.Create;
-        StringList.LoadFromStream(processA.Output);
-        if CheckBox1.Checked then
-          OutputArea.Lines.AddStrings(StringList);
-        ecode:=processA.ExitCode;
-        writestr(t,'Judge''s exit code is ',ecode);
-        OutputArea.Lines.Append(t);
-        case ecode of
-          0:t:='Verdict:Accept';
-          4002:t:='Verdict:Wrong Answer';
-          4003:t:='Verdict:Runtime Error';
-          4004:t:='Verdict:Time Limit Exceeded';
-          4005:t:='Verdict:Memory Limit Exceeded';
-          4001:t:='Verdict:Compile Error';
-          else t:='Verdict:Unexpected Error';
-        end;
-        OutputArea.Lines.Append(t);
-      finally
-        FreeAndNil(StringList);
-      end;
-    except
-      on E:EProcess do begin
-        ShowMessage('Cannot run.Check if your python interpreter exists!Maybe you should choose it manually.');
-        OutputArea.Lines.Append('Cannot start judging process!');
-      end;
-      on E:EStringListError do begin
-        ShowMessage('Choose a script,instead of input one');
-        OutputArea.Lines.Append('Illegal script!');
-      end
-      else begin end;
-    end;
-    processA.Free;
-    Enabled:=true;
-  end;
-  exit(0);
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -216,8 +263,7 @@ procedure TForm1.Button3Click(Sender: TObject);
 {const
   BUF_SIZE = 2048;}
 begin
-  Form1.Enabled:=false;
-  BeginThread(@CreateJudgeThread,nil);
+  JudgeThread:=TJudgeThread.Create(false);
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);

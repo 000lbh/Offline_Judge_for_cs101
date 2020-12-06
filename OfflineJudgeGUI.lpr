@@ -1,6 +1,6 @@
 program OfflineJudgeGUI;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$DEFINE UseCThreads}
 
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}

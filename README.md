@@ -3,6 +3,14 @@
 
 非常欢迎Pull requests，欢迎Issue。
 
+##### 2020.12.6 ver0.5 change log:
+
+Add partial MacOS support(imperfect)
+
+Automatically create Settings.xml on Windows
+
+Fixed some bugs
+
 ##### 2020.11.27 ver0.4 change log:
 
 Add arbitrary executables support,you can judge
@@ -55,8 +63,10 @@ macOs compability.
 
 Windows 10 2004专业版，64位，支持
 
-Windows 7旗舰版，64位，虚拟机，支持
+Windows 7旗舰版，64位，虚拟机，上个版本支持，此版本未经测试，应该支持
 
 ReactOS，32位，虚拟机，支持
 
-WindowsXP专业版，32位，虚拟机，不支持
+WindowsXP专业版，32位，虚拟机，上个版本不支持，此版本应该支持，但未测试
+
+MacOS Catalina，虚拟机，部分支持（需要自行调整配置，且不支持给出verdict，只能重定向脚本输出，但是这足够用了）
