@@ -1,7 +1,7 @@
 # Offline_Judge_for_cs101
- An offline judge system for python
+ An offline judge system for python.
 
-非常欢迎Pull requests，欢迎Issue。
+**No longer update**
 
 ##### 2020.12.6 ver0.5 change log:
 
